@@ -1,8 +1,8 @@
 # AndroidSQLiteServer - Rich IPC friendly SQLite API for Android.
 
-AndroidSQLite solves a common problem developers face when they need the full
-flexibility and API simplicity of SQLiteDatabase but where it is necessary to
-use a ContentProvider for multiprocess / IPC purposes.
+AndroidSQLiteServer solves a common problem developers face when they need the
+full flexibility and API simplicity of SQLiteDatabase but where it is necessary
+to use a ContentProvider for multiprocess / IPC purposes.
 
 This package provides a drop-in API replacement for SQLiteDatabase but that can
 connect to a separate process to execute the database operations.  Better
