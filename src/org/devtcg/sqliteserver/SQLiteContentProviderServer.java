@@ -3,12 +3,9 @@ package org.devtcg.sqliteserver;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
-import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.ServerImplProvider;
-import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public abstract class SQLiteContentProviderServer extends ContentProvider
         implements SQLiteServer {

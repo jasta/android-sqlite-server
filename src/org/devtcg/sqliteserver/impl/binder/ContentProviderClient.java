@@ -4,7 +4,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import org.devtcg.sqliteserver.impl.binder.AbstractBinderClient;
 
 public class ContentProviderClient extends AbstractBinderClient {
     private final ContentResolver mResolver;
