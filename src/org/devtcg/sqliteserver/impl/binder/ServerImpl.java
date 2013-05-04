@@ -6,8 +6,13 @@ import org.devtcg.sqliteserver.impl.binder.protocol.AbstractCommandMessage;
 import org.devtcg.sqliteserver.impl.binder.protocol.MethodName;
 
 import static org.devtcg.sqliteserver.impl.binder.protocol.BeginTransactionCommand.BeginTransactionHandler;
+import static org.devtcg.sqliteserver.impl.binder.protocol.DeleteCommand.DeleteHandler;
+import static org.devtcg.sqliteserver.impl.binder.protocol.EndTransactionCommand.EndTransactionHandler;
 import static org.devtcg.sqliteserver.impl.binder.protocol.ExecSQLCommand.ExecSQLHandler;
+import static org.devtcg.sqliteserver.impl.binder.protocol.InsertCommand.InsertHandler;
 import static org.devtcg.sqliteserver.impl.binder.protocol.RawQueryCommand.RawQueryHandler;
+import static org.devtcg.sqliteserver.impl.binder.protocol.SetTransactionSuccessfulCommand.SetTransactionSuccessfulHandler;
+import static org.devtcg.sqliteserver.impl.binder.protocol.UpdateCommand.UpdateHandler;
 
 /**
  * Unflattens server command messages expressed in a Bundle and delegates them to the
@@ -43,12 +48,22 @@ public class ServerImpl {
         switch (methodName) {
             case BEGIN_TRANSACTION:
                 return new BeginTransactionHandler(mExecutor).handle(request);
+            case SET_TRANSACTION_SUCCESSFUL:
+                return new SetTransactionSuccessfulHandler(mExecutor).handle(request);
+            case END_TRANSACTION:
+                return new EndTransactionHandler(mExecutor).handle(request);
             case RAW_QUERY:
                 return new RawQueryHandler(mExecutor, mServerName).handle(request);
             case EXEC_SQL:
                 return new ExecSQLHandler(mExecutor).handle(request);
+            case INSERT:
+                return new InsertHandler(mExecutor).handle(request);
+            case UPDATE:
+                return new UpdateHandler(mExecutor).handle(request);
+            case DELETE:
+                return new DeleteHandler(mExecutor).handle(request);
             default:
-                throw new UnsupportedOperationException("TODO");
+                throw new IllegalArgumentException("Unsupported methodName=" + methodName);
         }
     }
 }

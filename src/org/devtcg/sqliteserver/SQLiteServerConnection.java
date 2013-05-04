@@ -3,8 +3,6 @@ package org.devtcg.sqliteserver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import org.devtcg.sqliteserver.exception.SQLiteServerException;
 
 /**
  * Client interface for interacting with a server instance (either

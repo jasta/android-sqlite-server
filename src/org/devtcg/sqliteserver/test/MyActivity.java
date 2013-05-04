@@ -1,6 +1,7 @@
 package org.devtcg.sqliteserver.test;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -51,12 +52,17 @@ public class MyActivity extends Activity {
 
     private void doSmokeTest(SQLiteServerConnection conn) {
         System.out.println("Deleting all records...");
-        conn.execSQL("DELETE FROM test");
+        conn.delete("test", null, null);
 
         System.out.println("Inserting records...");
-        conn.execSQL("INSERT INTO test (test1, test2) VALUES ('foo', 'bar')");
-        conn.execSQL("INSERT INTO test (test1, test2) VALUES ('foo', 'baz')");
-        conn.execSQL("INSERT INTO test (test1, test2) VALUES ('man', 'baz')");
+        ContentValues values = new ContentValues();
+        values.put("test1", "foo");
+        values.put("test2", "bar");
+        conn.insert("test", values);
+        values.put("test2", "baz");
+        conn.insert("test", values);
+        values.put("test1", "bla");
+        conn.insert("test", values);
 
         System.out.println("Querying...");
         Cursor foo = conn.rawQuery("SELECT * FROM test", new String[] {});

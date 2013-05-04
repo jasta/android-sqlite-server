@@ -6,5 +6,7 @@ public enum MethodName {
     END_TRANSACTION,
     RAW_QUERY,
     EXEC_SQL,
-    CLOSE,
+    INSERT,
+    UPDATE,
+    DELETE,
 }
