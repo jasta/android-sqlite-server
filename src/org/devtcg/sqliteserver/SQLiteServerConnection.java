@@ -1,9 +1,9 @@
-package org.devtcg.sqlservercp;
+package org.devtcg.sqliteserver;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
-import org.devtcg.sqlservercp.driver.contentprovider.SQLiteServerException;
+import org.devtcg.sqliteserver.exception.SQLiteServerException;
 
 public interface SQLiteServerConnection {
     public void beginTransaction();

@@ -1,36 +1,32 @@
 AndroidSQLiteServer
 
+org.devtcg.sqliteserver
+
  src/
-   conn/
-     SQLiteServerConnection
-     SQLiteServerConnectionManager
+   SQLiteServerConnection
+   SQLiteServerConnectionManager
    SQLiteContentProviderServer
+      => ServerImpl
    SQLiteServiceServer
-   transport/
+      => ServerImpl
+   impl/
+     SQLiteExecutor <= SQLiteServerConnection
      binder/
+       ServerImpl
+         Bundle onTransact(Bundle)
        ContentObserverProxy
-       cp/
-         ContentProviderBackedClient
-         ContentProviderBackedServer
-       service/
-         ServiceBackedClient
-         ServiceBackedServer
-   client/
-     SQLiteServerCall
-       transact(ClientInterface)
-       hasError()
-       getError()
-     SQLiteServerRawQueryCall
-       QueryCall(String query, String selectionArgs)
-       transact(ClientInterface)
-       getCursor()
-     SQLiteServerInsertCall
-     ...
-   server/
-     SQLiteServerHandler
-       transact(ServerInterface)
-     SQLiteServerRawQueryHandler
-       
+       AbstractBinderClient
+         Cursor query(String sql) {
+           Bundle args = makeQueryRequest(sql);
+           Bundle b = transact(args);
+           return unpackQueryResponse(b);
+         }
+
+         Bundle onTransact(Bundle bundle);
+       ContentProviderClient
+         Bundle transact(Bundle)
+       ServiceClient
+         Bundle transact(Bundle)
    util/
      SQLiteServerOpenHelper
    exception/

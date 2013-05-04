@@ -1,6 +1,4 @@
-package org.devtcg.sqlservercp;
-
-import android.database.SQLException;
+package org.devtcg.sqliteserver.exception;
 
 public class SQLiteServerException extends RuntimeException {
     public SQLiteServerException(String msg) {

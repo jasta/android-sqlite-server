@@ -1,9 +1,9 @@
-package org.devtcg.sqlservercp;
+package org.devtcg.sqliteserver;
 
 import android.content.Context;
 import android.content.Intent;
-import org.devtcg.sqlservercp.driver.contentprovider.ContentProviderDriver;
-import org.devtcg.sqlservercp.driver.service.ServiceDriver;
+import org.devtcg.sqliteserver.impl.binder.ContentProviderClient;
+import org.devtcg.sqliteserver.impl.binder.ServiceClient;
 
 public class SQLiteServerConnectionManager {
     private final Context mContext;
@@ -14,11 +14,11 @@ public class SQLiteServerConnectionManager {
 
     public SQLiteServerConnection openConnectionToContentProvider(
             String contentProviderAuthority) {
-        return new ContentProviderDriver(mContext, contentProviderAuthority).openConnection();
+        return new ContentProviderClient(mContext, contentProviderAuthority);
     }
 
     public SQLiteServerConnection openConnectionToService(
             Intent serviceIntent) {
-        return new ServiceDriver(mContext, serviceIntent).openConnection();
+        return new ServiceClient(mContext, serviceIntent);
     }
 }

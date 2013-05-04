@@ -1,4 +1,4 @@
-package org.devtcg.sqlservercp.driver;
+package org.devtcg.sqliteserver.impl.binder;
 
 import android.database.IContentObserver;
 import android.net.Uri;
