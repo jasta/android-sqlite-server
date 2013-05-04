@@ -19,7 +19,7 @@ public class MyActivity extends Activity {
 
         new Thread() {
             public void run() {
-                smokeTest(openContentProvider());
+                smokeTest();
             }
         }.start();
     }
@@ -38,26 +38,31 @@ public class MyActivity extends Activity {
                 TestContentProvider.AUTHORITY);
     }
 
-    private void smokeTest(SQLiteServerConnection conn) {
+    private void smokeTest() {
+        SQLiteServerConnection conn = openService();
         try {
-            System.out.println("Deleting all records...");
-            conn.execSQL("DELETE FROM test");
-
-            System.out.println("Inserting records...");
-            conn.execSQL("INSERT INTO test (test1, test2) VALUES ('foo', 'bar')");
-            conn.execSQL("INSERT INTO test (test1, test2) VALUES ('foo', 'baz')");
-            conn.execSQL("INSERT INTO test (test1, test2) VALUES ('man', 'baz')");
-
-            System.out.println("Querying...");
-            Cursor foo = conn.rawQuery("SELECT * FROM test", new String[] {});
-            try {
-                dumpCursor(foo);
-            } finally {
-                foo.close();
-            }
+            doSmokeTest(conn);
         } finally {
             // Err, this isn't normally a very good idea.
             conn.close();
+        }
+    }
+
+    private void doSmokeTest(SQLiteServerConnection conn) {
+        System.out.println("Deleting all records...");
+        conn.execSQL("DELETE FROM test");
+
+        System.out.println("Inserting records...");
+        conn.execSQL("INSERT INTO test (test1, test2) VALUES ('foo', 'bar')");
+        conn.execSQL("INSERT INTO test (test1, test2) VALUES ('foo', 'baz')");
+        conn.execSQL("INSERT INTO test (test1, test2) VALUES ('man', 'baz')");
+
+        System.out.println("Querying...");
+        Cursor foo = conn.rawQuery("SELECT * FROM test", new String[] {});
+        try {
+            dumpCursor(foo);
+        } finally {
+            foo.close();
         }
     }
 
