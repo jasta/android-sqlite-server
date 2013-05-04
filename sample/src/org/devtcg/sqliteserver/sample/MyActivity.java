@@ -1,18 +1,14 @@
-package org.devtcg.sqliteserver.test;
+package org.devtcg.sqliteserver.sample;
 
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import org.devtcg.sqliteserver.R;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 import org.devtcg.sqliteserver.SQLiteServerConnectionManager;
 
 public class MyActivity extends Activity {
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

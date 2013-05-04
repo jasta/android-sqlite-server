@@ -36,6 +36,11 @@ try {
 }
 ```
 
+# Supported Android Versions
+
+The project goal is to support Gingerbread (API level 9) and up.  The current
+state is, however, a proof of concept targeting only Jelly Bean.
+
 # Contributing
 
 Feel free to fork and improve.  I will do my best to respond to issues and pull requests!

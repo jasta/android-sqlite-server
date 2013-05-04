@@ -1,4 +1,4 @@
-package org.devtcg.sqliteserver.test;
+package org.devtcg.sqliteserver.sample;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
