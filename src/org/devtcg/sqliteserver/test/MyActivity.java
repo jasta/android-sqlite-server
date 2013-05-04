@@ -30,12 +30,14 @@ public class MyActivity extends Activity {
 
     private SQLiteServerConnection openService() {
         Intent serviceIntent = new Intent(this, TestService.class);
+        System.out.println("Opening Service connection to: " + serviceIntent.getComponent());
         return createConnectionManager().openConnectionToService(serviceIntent);
     }
 
     private SQLiteServerConnection openContentProvider() {
-        return createConnectionManager().openConnectionToContentProvider(
-                TestContentProvider.AUTHORITY);
+        String authority = TestContentProvider.AUTHORITY;
+        System.out.println("Opening ContentProvider connection to: " + authority);
+        return createConnectionManager().openConnectionToContentProvider(authority);
     }
 
     private void smokeTest() {
@@ -43,7 +45,6 @@ public class MyActivity extends Activity {
         try {
             doSmokeTest(conn);
         } finally {
-            // Err, this isn't normally a very good idea.
             conn.close();
         }
     }

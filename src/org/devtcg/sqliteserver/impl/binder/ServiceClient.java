@@ -31,35 +31,27 @@ public class ServiceClient extends AbstractBinderClient {
     }
 
     @Override
-    public Bundle transact(Bundle request) {
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            throw new IllegalStateException("SQLiteServer operations are not allowed on the " +
-                    "main thread by design");
+    public void close() {
+        // See SQLiteServiceServer#onDestroy
+        mContext.unbindService(mServiceConnection);
+
+        // TODO: This isn't right, but I'm too sleepy to worry about it now...
+        synchronized (mServiceLock) {
+            if (mService != null && mConnectLatch.getCount() > 0) {
+                mConnectLatch.countDown();
+            }
         }
+    }
 
-        int methodNameAsInt = request.getInt(AbstractCommandMessage.KEY_METHOD_NAME);
-        MethodName methodName = MethodName.values()[methodNameAsInt];
-        if (methodName == MethodName.CLOSE) {
-            // See SQLiteServiceServer#onDestroy
-            mContext.unbindService(mServiceConnection);
-
-            // TODO: This isn't right, but I'm too sleepy to worry about it now...
-            synchronized (mServiceLock) {
-                if (mService != null && mConnectLatch.getCount() > 0) {
-                    mConnectLatch.countDown();
-                }
-            }
-
-            return new Bundle();
-        } else {
-            // Wait forever, just like we would for a ContentProvider.
-            // TODO: verify this absurd statement :)
-            waitForConnection(Integer.MAX_VALUE, TimeUnit.SECONDS);
-            try {
-                return mService.sqliteCall(request);
-            } catch (RemoteException e) {
-                throw new UnsupportedOperationException("Exceptions not yet supported!");
-            }
+    @Override
+    protected Bundle doTransact(Bundle request) {
+        // Wait forever, just like we would for a ContentProvider.
+        // TODO: verify this absurd statement :)
+        waitForConnection(Integer.MAX_VALUE, TimeUnit.SECONDS);
+        try {
+            return mService.sqliteCall(request);
+        } catch (RemoteException e) {
+            throw new UnsupportedOperationException("Exceptions not yet supported!");
         }
     }
 

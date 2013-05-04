@@ -29,8 +29,11 @@ public class ServerImpl {
      * best to have the ContentProvider and Service implementations try to match
      * each other semantically or if there is cause to offer a more flexible model
      * with the Service implementation.
+     * <p>
+     * The ContentProvider currently never closes the database, and never shuts down, per usual
+     * with the ContentProvider paradigm.
      */
-    public void forceClose() {
+    public void closeDatabase() {
         mExecutor.close();
     }
 

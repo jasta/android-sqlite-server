@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
+import android.os.Looper;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 import org.devtcg.sqliteserver.exception.SQLiteServerException;
 
@@ -70,8 +71,20 @@ public abstract class AbstractBinderClient implements SQLiteServerConnection, Cl
     }
 
     @Override
-    public void close() {
-        System.out.println("WARNING: close() not implemented!");
-//        new CloseMessage(this).transact();
+    public Bundle transact(Bundle request) {
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            throw new IllegalStateException("SQLiteServiceConnection operations are not allowed " +
+                    "on the main thread by design");
+        }
+
+        return doTransact(request);
     }
+
+    /**
+     * Blocking call to the server peer to deliver our request and receive the response.
+     *
+     * @param request Request encoded as a {@link Bundle}.
+     * @return Response encoded as a {@link Bundle}.
+     */
+    protected abstract Bundle doTransact(Bundle request);
 }

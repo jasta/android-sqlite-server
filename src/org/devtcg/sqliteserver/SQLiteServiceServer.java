@@ -25,7 +25,7 @@ public abstract class SQLiteServiceServer extends Service implements SQLiteServe
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mServerImplProvider.get().forceClose();
+        mServerImplProvider.get().closeDatabase();
     }
 
     @Override
