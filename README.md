@@ -7,7 +7,8 @@ to use a ContentProvider for multiprocess / IPC purposes.
 This package provides a drop-in API replacement for SQLiteDatabase but that can
 connect to a separate process to execute the database operations.  Better
 still, you can even connect to Service components instead of ContentProvider's,
-giving you the flexibility to have multiple instances of the same service.
+giving you the flexibility to have multiple instances of the same database
+schema.
 
 Best of all, using this library does not mean you can't still provide a
 traditional ContentProvider API for your component!
@@ -43,7 +44,8 @@ state is, however, a proof of concept targeting only Jelly Bean.
 
 # Contributing
 
-Feel free to fork and improve.  I will do my best to respond to issues and pull requests!
+Feel free to fork and improve.  I will do my best to respond to issues and pull
+requests!
 
 # License
 
