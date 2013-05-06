@@ -159,6 +159,8 @@ public class ServerImpl {
             // simplest to keep it out of that code path.
             case ACQUIRE:
                 return doOnTransact(methodName, request);
+            // TODO: If this server is running in the same process as the client, we can skip
+            // all this scheduling overhead...
             default:
                 return runOnDedicatedThread(methodName, request);
         }
