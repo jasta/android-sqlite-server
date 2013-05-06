@@ -11,6 +11,7 @@ import android.util.Log;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 import org.devtcg.sqliteserver.exception.SQLiteServerException;
 
+import static android.os.IBinder.DeathRecipient;
 import static org.devtcg.sqliteserver.impl.binder.protocol.AcquireCommand.AcquireMessage;
 import static org.devtcg.sqliteserver.impl.binder.protocol.BeginTransactionCommand.BeginTransactionMessage;
 import static org.devtcg.sqliteserver.impl.binder.protocol.DeleteCommand.DeleteMessage;
@@ -30,6 +31,9 @@ public abstract class AbstractBinderClient implements SQLiteServerConnection, Cl
     private final String mTag = getClass().getSimpleName();
 
     private BinderHandle mClientHandle;
+    private BinderHandle mServerHandle;
+
+    private DeathRecipient mServerDiedHandler;
 
     private boolean mClosed;
     private volatile boolean mDeadServer;
@@ -45,17 +49,20 @@ public abstract class AbstractBinderClient implements SQLiteServerConnection, Cl
     public void acquire() throws SQLiteServerProtocolException {
         AcquireMessage message = new AcquireMessage(this);
         message.transact();
-        BinderHandle serverHandle = message.getServerHandle();
+        mServerHandle = message.getServerHandle();
         try {
-            serverHandle.asBinder().linkToDeath(
-                    new ServerDiedHandler(serverHandle), 0);
+            mServerDiedHandler = new ServerDiedHandler(mServerHandle);
+            mServerHandle.asBinder().linkToDeath(mServerDiedHandler, 0);
         } catch (RemoteException e) {
             throw new SQLiteServerProtocolException("Server is not supposed to die!", e);
         }
     }
 
     public void release() throws SQLiteServerProtocolException {
-        new ReleaseMessage(this).transact();
+        if (mServerHandle != null) {
+            mServerHandle.asBinder().unlinkToDeath(mServerDiedHandler, 0);
+            new ReleaseMessage(this).transact();
+        }
     }
 
     @Override
@@ -162,7 +169,7 @@ public abstract class AbstractBinderClient implements SQLiteServerConnection, Cl
      */
     protected abstract Bundle doTransact(Bundle request);
 
-    private class ServerDiedHandler implements IBinder.DeathRecipient {
+    private class ServerDiedHandler implements DeathRecipient {
         private final BinderHandle mServerHandle;
 
         public ServerDiedHandler(BinderHandle serverHandle) {

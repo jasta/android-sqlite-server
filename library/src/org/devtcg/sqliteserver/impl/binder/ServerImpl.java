@@ -1,15 +1,16 @@
 package org.devtcg.sqliteserver.impl.binder;
 
-import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+import org.devtcg.sqliteserver.impl.ExecutorHelper;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.protocol.AbstractCommandMessage;
 import org.devtcg.sqliteserver.impl.binder.protocol.MethodName;
 
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static android.os.IBinder.DeathRecipient;
@@ -29,6 +30,9 @@ import static org.devtcg.sqliteserver.impl.binder.protocol.UpdateCommand.UpdateH
  * {@link SQLiteExecutor}.  Then, packages up the response back into a Bundle for
  * {@link AbstractBinderClient} to process on the other end.
  * <p>
+ * Requests sent here will be executed on a dedicated thread per client connection.  This is
+ * to preserve the thread affinity normally observed with a local
+ * {@link android.database.sqlite.SQLiteDatabase} instance.
  */
 public class ServerImpl {
     private final String mTag;
@@ -84,16 +88,20 @@ public class ServerImpl {
         }
 
         // Handle cleanup if the client disappears.
-        clientHandle.asBinder().linkToDeath(
-                new ClientDiedHandler(clientHandle), 0);
+        ClientDiedHandler deathHandler = new ClientDiedHandler(clientHandle);
+        clientHandle.asBinder().linkToDeath(deathHandler, 0);
 
         ServerState state = new ServerState();
+        state.deathRecipient = deathHandler;
         state.clientHandle = clientHandle;
+        state.executor = ExecutorHelper.createThreadAffinityExecutor();
         mServerStateMap.put(clientHandle.asBinder(), state);
     }
 
     public void performRelease(ServerState state) {
         if (state != null) {
+            state.executor.shutdown();
+            state.clientHandle.asBinder().unlinkToDeath(state.deathRecipient, 0);
             endTransactionsIfNecessary(state);
             mServerStateMap.remove(state.clientHandle.asBinder());
         }
@@ -111,6 +119,11 @@ public class ServerImpl {
         }
     }
 
+    /**
+     * This code path smells a little too heavy for individual database operations (consider
+     * a large number of inserts).  Need to benchmark the performance versus ContentProvider
+     * and also versus SQLiteDatabase.
+     */
     public Bundle onTransact(Bundle request) {
         request.setClassLoader(getClass().getClassLoader());
         MethodName methodName = null;
@@ -118,9 +131,7 @@ public class ServerImpl {
             int methodNameOrdinal = BundleUtils.getIntOrThrow(request,
                     AbstractCommandMessage.KEY_METHOD_NAME);
             methodName = MethodName.values()[methodNameOrdinal];
-            Log.d(mTag, "Invoking " + methodName + " on thread " +
-                    Thread.currentThread().getId());
-            return doOnTransact(methodName, request);
+            return runOnTransact(methodName, request);
         } catch (RuntimeException e) {
             // TODO: Handle this explicitly; right now we're relying on the fact that we're
             // being wrapped inside of either a Service or a ContentProvider call which will
@@ -129,14 +140,56 @@ public class ServerImpl {
             throw e;
         } catch (SQLiteServerProtocolException e) {
             StringBuilder message = new StringBuilder();
-            message.append("Protocol exception: " + e);
+            message.append("Protocol exception: ").append(e);
             if (methodName != null) {
-                message.append(", dropping method: " + methodName);
+                message.append(", dropping method: ").append(methodName);
             }
             Log.w(mTag, message.toString());
 
             // TODO: Send back an error!
             return null;
+        }
+    }
+
+    private Bundle runOnTransact(MethodName methodName, Bundle request)
+            throws SQLiteServerProtocolException {
+        switch (methodName) {
+            // Acquire can run on the Binder thread since it doesn't interact with
+            // SQLiteDatabase.  It's used to set up the dedicated thread executor so it's
+            // simplest to keep it out of that code path.
+            case ACQUIRE:
+                return doOnTransact(methodName, request);
+            default:
+                return runOnDedicatedThread(methodName, request);
+        }
+    }
+
+    private Bundle runOnDedicatedThread(final MethodName methodName, final Bundle request)
+            throws SQLiteServerProtocolException {
+        BinderHandle clientHandle = BundleUtils.getParcelableOrThrow(
+                request, AbstractCommandMessage.KEY_CLIENT_BINDER);
+        ServerState state = getServerState(clientHandle);
+        if (state == null) {
+            throw new SQLiteServerProtocolException("No client state found for clientHandle=" +
+                    clientHandle);
+        }
+
+        try {
+            return state.executor.runSynchronously(new Callable<Bundle>() {
+                @Override
+                public Bundle call() throws Exception {
+                    Log.d(mTag, "Invoking " + methodName + " on thread " +
+                            Thread.currentThread().getId());
+                    return doOnTransact(methodName, request);
+                }
+            });
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (SQLiteServerProtocolException e) {
+            throw e;
+        } catch (Exception e) {
+            // This represents a programmer error in AndroidSQLiteServer.
+            throw new RuntimeException(e);
         }
     }
 
