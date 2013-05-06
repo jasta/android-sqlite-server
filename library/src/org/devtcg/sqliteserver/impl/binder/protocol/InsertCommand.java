@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class InsertCommand {
     private static final String KEY_TABLE = "table";
@@ -44,8 +45,8 @@ public class InsertCommand {
     }
 
     public static class InsertHandler extends AbstractCommandHandler {
-        public InsertHandler(SQLiteExecutor executor) {
-            super(executor);
+        public InsertHandler(ServerImpl serverImpl) {
+            super(serverImpl);
         }
 
         @Override

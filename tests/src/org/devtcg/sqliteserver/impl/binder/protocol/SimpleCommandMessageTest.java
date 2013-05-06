@@ -2,6 +2,7 @@ package org.devtcg.sqliteserver.impl.binder.protocol;
 
 import android.os.Bundle;
 import junit.framework.TestCase;
+import org.devtcg.sqliteserver.impl.binder.BinderHandle;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
 
 public class SimpleCommandMessageTest extends TestCase {
@@ -39,6 +40,11 @@ public class SimpleCommandMessageTest extends TestCase {
 
     private static class TestTransactor implements ClientTransactor {
         private String mTestRequestValue;
+
+        @Override
+        public BinderHandle getClientHandle() {
+            return null;
+        }
 
         @Override
         public Bundle transact(Bundle request) {

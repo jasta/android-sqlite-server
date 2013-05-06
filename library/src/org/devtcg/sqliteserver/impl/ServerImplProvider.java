@@ -14,7 +14,8 @@ public class ServerImplProvider {
     public ServerImpl get() {
         if (mServerImpl == null) {
             SQLiteExecutor executor = new SQLiteExecutor(mBackend.getWritableDatabase());
-            mServerImpl = new ServerImpl(executor, mBackend.getServerName());
+            mServerImpl = new ServerImpl(mBackend.getClass().getSimpleName(),
+                    executor, mBackend.getServerName());
         }
         return mServerImpl;
     }

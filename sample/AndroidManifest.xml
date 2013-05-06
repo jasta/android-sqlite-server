@@ -16,7 +16,9 @@
             </intent-filter>
         </activity>
         <provider android:name=".TestContentProvider"
-                  android:authorities="org.devtcg.sqliteserver.testcp" />
-        <service android:name=".TestService" />
+                  android:authorities="org.devtcg.sqliteserver.testcp"
+                  android:process=":provider" />
+        <service android:name=".TestService"
+                  android:process=":service" />
     </application>
 </manifest>

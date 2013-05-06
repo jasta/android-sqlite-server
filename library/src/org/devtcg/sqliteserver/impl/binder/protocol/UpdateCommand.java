@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class UpdateCommand {
     private static final String KEY_TABLE = "table";
@@ -54,8 +55,8 @@ public class UpdateCommand {
     }
 
     public static class UpdateHandler extends AbstractCommandHandler {
-        public UpdateHandler(SQLiteExecutor executor) {
-            super(executor);
+        public UpdateHandler(ServerImpl serverImpl) {
+            super(serverImpl);
         }
 
         @Override

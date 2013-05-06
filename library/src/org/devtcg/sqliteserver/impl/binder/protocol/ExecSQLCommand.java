@@ -3,6 +3,7 @@ package org.devtcg.sqliteserver.impl.binder.protocol;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class ExecSQLCommand {
     private static final String KEY_SQL = "sql";
@@ -28,8 +29,8 @@ public class ExecSQLCommand {
     }
 
     public static class ExecSQLHandler extends AbstractCommandHandler {
-        public ExecSQLHandler(SQLiteExecutor executor) {
-            super(executor);
+        public ExecSQLHandler(ServerImpl serverImpl) {
+            super(serverImpl);
         }
 
         @Override

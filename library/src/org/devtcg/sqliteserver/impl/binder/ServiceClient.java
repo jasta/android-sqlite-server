@@ -6,11 +6,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
-import org.devtcg.sqliteserver.impl.binder.protocol.AbstractCommandMessage;
-import org.devtcg.sqliteserver.impl.binder.protocol.MethodName;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -32,6 +29,8 @@ public class ServiceClient extends AbstractBinderClient {
 
     @Override
     public void close() {
+        super.close();
+
         // See SQLiteServiceServer#onDestroy
         mContext.unbindService(mServiceConnection);
 

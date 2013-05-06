@@ -8,6 +8,8 @@ import android.os.Bundle;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 import org.devtcg.sqliteserver.SQLiteServerConnectionManager;
 
+import java.util.ArrayList;
+
 public class MyActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -21,44 +23,66 @@ public class MyActivity extends Activity {
         }.start();
     }
 
-    private SQLiteServerConnectionManager createConnectionManager() {
-        return new SQLiteServerConnectionManager(getApplicationContext());
+    private abstract class AbstractConnectionProvider {
+        protected SQLiteServerConnectionManager createConnectionManager() {
+            return new SQLiteServerConnectionManager(getApplicationContext());
+        }
+
+        public abstract SQLiteServerConnection openConnection();
     }
 
-    private SQLiteServerConnection openService() {
-        Intent serviceIntent = new Intent(this, TestService.class);
-        System.out.println("Opening Service connection to: " + serviceIntent.getComponent());
-        return createConnectionManager().openConnectionToService(serviceIntent);
+    private class ServiceConnectionProvider extends AbstractConnectionProvider {
+        @Override
+        public SQLiteServerConnection openConnection() {
+            Intent serviceIntent = new Intent(MyActivity.this, TestService.class);
+            System.out.println("Opening Service connection to: " + serviceIntent.getComponent());
+            return createConnectionManager().openConnectionToService(serviceIntent);
+        }
     }
 
-    private SQLiteServerConnection openContentProvider() {
-        String authority = TestContentProvider.AUTHORITY;
-        System.out.println("Opening ContentProvider connection to: " + authority);
-        return createConnectionManager().openConnectionToContentProvider(authority);
+    private class ContentProviderConnectionProvider extends AbstractConnectionProvider {
+        @Override
+        public SQLiteServerConnection openConnection() {
+            String authority = TestContentProvider.AUTHORITY;
+            System.out.println("Opening ContentProvider connection to: " + authority);
+            return createConnectionManager().openConnectionToContentProvider(authority);
+        }
     }
 
     private void smokeTest() {
-        SQLiteServerConnection conn = openService();
-        try {
-            doSmokeTest(conn);
-        } finally {
-            conn.close();
+        AbstractConnectionProvider[] providers = new AbstractConnectionProvider[] {
+            new ContentProviderConnectionProvider(),
+            new ServiceConnectionProvider()
+        };
+        for (AbstractConnectionProvider provider : providers) {
+            SQLiteServerConnection conn = provider.openConnection();
+            try {
+                doSmokeTest(conn);
+            } finally {
+                conn.close();
+            }
         }
     }
 
     private void doSmokeTest(SQLiteServerConnection conn) {
-        System.out.println("Deleting all records...");
-        conn.delete("test", null, null);
+        conn.beginTransaction();
+        try {
+            System.out.println("Deleting all records...");
+            conn.delete("test", null, null);
 
-        System.out.println("Inserting records...");
-        ContentValues values = new ContentValues();
-        values.put("test1", "foo");
-        values.put("test2", "bar");
-        conn.insert("test", values);
-        values.put("test2", "baz");
-        conn.insert("test", values);
-        values.put("test1", "bla");
-        conn.insert("test", values);
+            System.out.println("Inserting records...");
+            ContentValues values = new ContentValues();
+            values.put("test1", "foo");
+            values.put("test2", "bar");
+            conn.insert("test", values);
+            values.put("test2", "baz");
+            conn.insert("test", values);
+            values.put("test1", "bla");
+            conn.insert("test", values);
+            conn.setTransactionSuccessful();
+        } finally {
+            conn.endTransaction();
+        }
 
         System.out.println("Querying...");
         Cursor foo = conn.rawQuery("SELECT * FROM test", new String[] {});

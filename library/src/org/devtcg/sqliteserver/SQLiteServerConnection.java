@@ -10,6 +10,9 @@ import android.database.sqlite.SQLiteDatabase;
  * <p>
  * This API strives to provide all of the same features as
  * {@link SQLiteDatabase}, making it a perfect drop-in replacements.
+ * <p>
+ * Implementations of this interface are not designed to be thread-safe.
+ * Each thread must create its own connection!
  */
 public interface SQLiteServerConnection {
     /**

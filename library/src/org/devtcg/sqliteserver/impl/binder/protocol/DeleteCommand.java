@@ -3,6 +3,7 @@ package org.devtcg.sqliteserver.impl.binder.protocol;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class DeleteCommand {
     private static final String KEY_TABLE = "table";
@@ -48,8 +49,8 @@ public class DeleteCommand {
     }
 
     public static class DeleteHandler extends AbstractCommandHandler {
-        public DeleteHandler(SQLiteExecutor executor) {
-            super(executor);
+        public DeleteHandler(ServerImpl serverImpl) {
+            super(serverImpl);
         }
 
         @Override

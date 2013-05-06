@@ -1,8 +1,10 @@
 package org.devtcg.sqliteserver.impl.binder.protocol;
 
 import android.os.Bundle;
+import org.devtcg.sqliteserver.exception.SQLiteServerException;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class SetTransactionSuccessfulCommand {
     public static class SetTransactionSuccessfulMessage extends AbstractCommandMessage {
@@ -22,8 +24,8 @@ public class SetTransactionSuccessfulCommand {
     }
 
     public static class SetTransactionSuccessfulHandler extends AbstractCommandHandler {
-        public SetTransactionSuccessfulHandler(SQLiteExecutor executor) {
-            super(executor);
+        public SetTransactionSuccessfulHandler(ServerImpl serverImpl) {
+            super(serverImpl);
         }
 
         @Override

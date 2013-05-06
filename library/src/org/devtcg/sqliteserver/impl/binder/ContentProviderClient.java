@@ -20,9 +20,4 @@ public class ContentProviderClient extends AbstractBinderClient {
         // for consistency with the service implementation.
         return mResolver.call(mAuthority, "transact", null, request);
     }
-
-    @Override
-    public void close() {
-        // ContentProvider's don't ever shutdown or have any kind of close mechanism.
-    }
 }

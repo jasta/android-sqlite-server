@@ -8,6 +8,7 @@ import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
 import org.devtcg.sqliteserver.impl.binder.ContentObserverProxy;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class RawQueryCommand {
     private static final String KEY_QUERY = "query";
@@ -72,8 +73,8 @@ public class RawQueryCommand {
     public static class RawQueryHandler extends AbstractCommandHandler {
         private final String mServerName;
 
-        public RawQueryHandler(SQLiteExecutor executor, String serverName) {
-            super(executor);
+        public RawQueryHandler(ServerImpl serverImpl, String serverName) {
+            super(serverImpl);
             mServerName = serverName;
         }
 

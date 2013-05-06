@@ -3,6 +3,7 @@ package org.devtcg.sqliteserver.impl.binder.protocol;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
+import org.devtcg.sqliteserver.impl.binder.ServerImpl;
 
 public class BeginTransactionCommand {
     public static class BeginTransactionMessage extends AbstractCommandMessage {
@@ -22,13 +23,14 @@ public class BeginTransactionCommand {
     }
 
     public static class BeginTransactionHandler extends AbstractCommandHandler {
-        public BeginTransactionHandler(SQLiteExecutor executor) {
-            super(executor);
+        public BeginTransactionHandler(ServerImpl serverImpl) {
+            super(serverImpl);
         }
 
         @Override
         protected Bundle onHandle(Bundle request) {
             getExecutor().beginTransaction();
+            getServerState().numTransactions++;
             return null;
         }
     }
