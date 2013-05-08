@@ -11,7 +11,7 @@ public class ServerImplProvider {
         mBackend = backend;
     }
 
-    public ServerImpl get() {
+    public synchronized ServerImpl get() {
         if (mServerImpl == null) {
             SQLiteExecutor executor = new SQLiteExecutor(mBackend.getWritableDatabase());
             mServerImpl = new ServerImpl(mBackend.getClass().getSimpleName(),
