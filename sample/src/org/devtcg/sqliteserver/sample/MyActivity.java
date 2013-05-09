@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 import org.devtcg.sqliteserver.SQLiteServerConnectionManager;
@@ -50,10 +51,12 @@ public class MyActivity extends Activity {
     }
 
     private void smokeTest() {
-        AbstractConnectionProvider[] providers = new AbstractConnectionProvider[] {
-            new ContentProviderConnectionProvider(),
-            new ServiceConnectionProvider()
-        };
+        ArrayList<AbstractConnectionProvider> providers =
+                new ArrayList<AbstractConnectionProvider>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            providers.add(new ContentProviderConnectionProvider());
+        }
+        providers.add(new ServiceConnectionProvider());
         for (AbstractConnectionProvider provider : providers) {
             SQLiteServerConnection conn = provider.openConnection();
             try {
@@ -100,22 +103,8 @@ public class MyActivity extends Activity {
         while (cursor.moveToNext()) {
             System.out.println("Row #" + (++rowNum) + ":");
             for (int i = 0; i < columnCount; i++) {
-                System.out.print("\t" + cursor.getColumnName(i) + ": ");
-                int type = cursor.getType(i);
-                Object value;
-                switch (type) {
-                    case Cursor.FIELD_TYPE_STRING:
-                        value = cursor.getString(i);
-                        break;
-                    case Cursor.FIELD_TYPE_INTEGER:
-                        value = cursor.getInt(i);
-                        break;
-                    case Cursor.FIELD_TYPE_NULL:
-                    default:
-                        value = null;
-                        break;
-                }
-                System.out.println(value != null ? value.toString() : "null");
+                System.out.println("\t" + cursor.getColumnName(i) + ": " +
+                        cursor.getString(i));
             }
         }
     }

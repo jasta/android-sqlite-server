@@ -3,6 +3,6 @@
           package="org.devtcg.sqliteserver"
           android:versionCode="1"
           android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="16"/>
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="16"/>
     <application android:label="@string/sqlite_server_name" />
 </manifest>
