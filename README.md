@@ -40,7 +40,8 @@ try {
 # Supported Android Versions
 
 The project goal is to support Gingerbread (API level 9) and up.  The current
-state is, however, a proof of concept targeting only Jelly Bean.
+version, however, only supports Gingerbread for the Service-backed server case
+(not the ContentProvider-backed case).
 
 # Contributing
 
