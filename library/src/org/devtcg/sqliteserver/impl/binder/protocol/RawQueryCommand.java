@@ -1,11 +1,10 @@
 package org.devtcg.sqliteserver.impl.binder.protocol;
 
-import android.database.BulkCursorDescriptor;
-import android.database.BulkCursorToCursorAdaptor;
 import android.database.Cursor;
-import android.database.CursorToBulkCursorAdaptor;
 import android.os.Bundle;
-import org.devtcg.sqliteserver.impl.SQLiteExecutor;
+import aosp.android.database.BulkCursorDescriptor;
+import aosp.android.database.BulkCursorToCursorAdaptor;
+import aosp.android.database.CursorToBulkCursorAdaptor;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
 import org.devtcg.sqliteserver.impl.binder.ContentObserverProxy;
 import org.devtcg.sqliteserver.impl.binder.ServerImpl;

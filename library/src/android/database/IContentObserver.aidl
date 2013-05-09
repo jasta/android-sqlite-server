@@ -19,6 +19,9 @@ package android.database;
 
 import android.net.Uri;
 
+/**
+ * @hide
+ */
 interface IContentObserver
 {
     /**
