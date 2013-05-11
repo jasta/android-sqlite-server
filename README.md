@@ -48,6 +48,20 @@ version, however, only supports Gingerbread for the Service-backed server case
 Feel free to fork and improve.  I will do my best to respond to issues and pull
 requests!
 
+## TODO
+
+* [important] Gingerbread support for the ContentProvider case would be nice,
+  but it isn't straight forward to add.  The major problem is hooking up the
+  process death recipients.
+* [important] Implement a local transport that just passes through to
+  SQLiteExecutor (so, functionally equivalent to how SQLiteDatabase works now).
+* [important] Detect same process cases for ContentProvider and Service and
+  just invoke methods directly.
+* [wishlist] Refactor the very generic AbstractBinderClient such that each
+  transport (ContentProvider or Service) can implement its own, more efficient,
+  dispatching logic.  For example, Service can define an aidl that parcels the
+  messages directly, no longer requiring Bundle.
+
 # License
 
 Apache License, Version 2.0
