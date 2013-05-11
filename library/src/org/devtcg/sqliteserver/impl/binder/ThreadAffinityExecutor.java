@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This creates thread affinity with the client (all requests executing by this client on
@@ -26,9 +27,9 @@ public class ThreadAffinityExecutor<V> {
      *
      * @param callable Callable to run on the designated thread.
      * @return Callable result.
-     * @throws Exception Rethrown from the {@code callable}.
+     * @throws ExecutionException Wrapped exception rethrown from the {@code callable}.
      */
-    public V runSynchronously(final Callable<V> callable) throws Exception {
+    public V runSynchronously(final Callable<V> callable) throws ExecutionException {
         // TODO: optimize this garbage (specifically: remove allocations).
         final ResultHolder<V> resultHolder = new ResultHolder<V>();
         final CountDownLatch resultLatch = new CountDownLatch(1);
@@ -45,7 +46,7 @@ public class ThreadAffinityExecutor<V> {
         });
         awaitUninterruptibly(resultLatch);
         if (resultHolder.exception != null) {
-            throw resultHolder.exception;
+            throw new ExecutionException(resultHolder.exception);
         } else {
             return resultHolder.result;
         }

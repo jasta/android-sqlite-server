@@ -12,6 +12,7 @@ import org.devtcg.sqliteserver.impl.binder.protocol.MethodName;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import static android.os.IBinder.DeathRecipient;
 import static org.devtcg.sqliteserver.impl.binder.protocol.AcquireCommand.AcquireHandler;
@@ -98,12 +99,22 @@ public class ServerImpl {
         mServerStateMap.put(clientHandle.asBinder(), state);
     }
 
-    public void performRelease(ServerState state) {
+    public void performRelease(final ServerState state) {
         if (state != null) {
-            state.executor.shutdown();
             state.clientHandle.asBinder().unlinkToDeath(state.deathRecipient, 0);
-            endTransactionsIfNecessary(state);
+            try {
+                state.executor.runSynchronously(new Callable<Bundle>() {
+                    public Bundle call() {
+                        endTransactionsIfNecessary(state);
+                        return null;
+                    }
+                });
+            } catch (ExecutionException e) {
+                // Doesn't throw any checked exceptions...
+                throw new RuntimeException(e.getCause());
+            }
             mServerStateMap.remove(state.clientHandle.asBinder());
+            state.executor.shutdown();
         }
     }
 
@@ -185,13 +196,16 @@ public class ServerImpl {
                     return doOnTransact(methodName, request);
                 }
             });
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (SQLiteServerProtocolException e) {
-            throw e;
-        } catch (Exception e) {
-            // This represents a programmer error in AndroidSQLiteServer.
-            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                // Note that SQLiteException is actually a RuntimeException...
+                throw (RuntimeException)cause;
+            } else if (cause instanceof SQLiteServerProtocolException) {
+                throw (SQLiteServerProtocolException)cause;
+            } else {
+                throw new RuntimeException(e);
+            }
         }
     }
 

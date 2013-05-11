@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 
-class ServiceConnectionProvider extends AbstractConnectionProvider {
+public class ServiceConnectionProvider extends AbstractConnectionProvider {
     private final Intent mServiceIntent;
 
     public ServiceConnectionProvider(Context context, Intent serviceIntent) {
         super(context);
         mServiceIntent = serviceIntent;
+    }
+
+    public Intent getServiceIntent() {
+        return mServiceIntent;
     }
 
     @Override

@@ -19,13 +19,24 @@
         <service android:name=".support.SeparateProcessService"
                  android:process=":otro" />
 
+        <!-- In order to test client crashes, we need to delegate to a separate
+             client process which we can safely crash without crashing the test process. -->
+        <service android:name=".support.delegate.TestDelegateService"
+                 android:process=":client_delegate" />
+
+        <!-- See CrashHelper. -->
         <receiver android:name=".support.CrashOtroProcess"
                   android:process=":otro">
             <intent-filter>
                 <action android:name="org.devtcg.sqliteserver.tests.ACTION_CRASH" />
             </intent-filter>
         </receiver>
-
+        <receiver android:name=".support.CrashTestDelegateProcess"
+                  android:process=":client_delegate">
+            <intent-filter>
+                <action android:name="org.devtcg.sqliteserver.tests.ACTION_CRASH" />
+            </intent-filter>
+        </receiver>
     </application>
     <!--
     This declares that this application uses the instrumentation test runner targeting
