@@ -1,16 +1,13 @@
-package org.devtcg.sqliteserver.tests.support;
+package org.devtcg.sqliteserver.tests.util;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import org.devtcg.sqliteserver.tests.util.ProcessHelper;
 
 import static junit.framework.Assert.assertTrue;
 
 public class CrashHelper {
     private static final String ACTION_CRASH = "org.devtcg.sqliteserver.tests.ACTION_CRASH";
-    static final String EXTRA_TARGET_PROCESS_NAME = "target_process_name";
+    public static final String EXTRA_TARGET_PROCESS_NAME = "target_process_name";
 
     public static void synchronouslyCrash(Context context, String targetProcess) {
         assertTrue("Process " + targetProcess + " must already be alive",

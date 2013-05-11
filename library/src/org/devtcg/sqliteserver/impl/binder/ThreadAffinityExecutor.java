@@ -15,7 +15,6 @@ import java.util.concurrent.CountDownLatch;
 public class ThreadAffinityExecutor<V> {
     private final Looper mLooper;
     private final Handler mHandler;
-    private V result;
 
     public ThreadAffinityExecutor(Looper looper) {
         mLooper = looper;

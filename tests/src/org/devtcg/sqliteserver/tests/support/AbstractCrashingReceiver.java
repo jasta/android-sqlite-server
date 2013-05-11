@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.util.Log;
+import org.devtcg.sqliteserver.tests.util.CrashHelper;
 import org.devtcg.sqliteserver.tests.util.ProcessHelper;
 
 abstract class AbstractCrashingReceiver extends BroadcastReceiver {
