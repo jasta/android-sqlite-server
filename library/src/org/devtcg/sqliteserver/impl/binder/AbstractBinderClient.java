@@ -68,7 +68,9 @@ public abstract class AbstractBinderClient implements SQLiteServerConnection, Cl
     @Override
     public void close() {
         try {
-            release();
+            if (!mDeadServer) {
+                release();
+            }
         } catch (SQLiteServerProtocolException e) {
             // Not much we can do, but this may also not be harmless so we'll log just in case
             Log.i(mTag, "Failed to release connection with the server, ignoring...");

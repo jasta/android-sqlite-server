@@ -9,6 +9,23 @@
          which is needed when building test cases. -->
     <application>
         <uses-library android:name="android.test.runner"/>
+
+        <provider android:name=".support.SameProcessContentProvider"
+                  android:authorities="org.devtcg.sqliteserver.tests.support.SameProcessContentProvider" />
+        <provider android:name=".support.SeparateProcessContentProvider"
+                  android:authorities="org.devtcg.sqliteserver.tests.support.SeparateProcessContentProvider"
+                  android:process=":otro" />
+        <service android:name=".support.SameProcessService" />
+        <service android:name=".support.SeparateProcessService"
+                 android:process=":otro" />
+
+        <receiver android:name=".support.CrashOtroProcess"
+                  android:process=":otro">
+            <intent-filter>
+                <action android:name="org.devtcg.sqliteserver.tests.ACTION_CRASH" />
+            </intent-filter>
+        </receiver>
+
     </application>
     <!--
     This declares that this application uses the instrumentation test runner targeting
