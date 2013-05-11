@@ -1,8 +1,6 @@
 package org.devtcg.sqliteserver.tests;
 
 import android.content.ContentValues;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
 import org.devtcg.sqliteserver.SQLiteServerConnection;

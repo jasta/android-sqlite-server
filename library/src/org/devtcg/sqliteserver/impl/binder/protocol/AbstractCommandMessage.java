@@ -1,5 +1,6 @@
 package org.devtcg.sqliteserver.impl.binder.protocol;
 
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import org.devtcg.sqliteserver.impl.binder.ClientTransactor;
 import org.devtcg.sqliteserver.impl.binder.SQLiteServerProtocolException;
@@ -15,6 +16,8 @@ public abstract class AbstractCommandMessage {
     public static final String KEY_METHOD_NAME = "method_name";
     public static final String KEY_CLIENT_BINDER = "client_binder";
 
+    public static final String KEY_SERVER_EXCEPTION_HELPER = "server_exception_helper";
+
     private final ClientTransactor mTransactor;
     private final MethodName mMethodName;
 
@@ -26,23 +29,31 @@ public abstract class AbstractCommandMessage {
         mMethodName = methodName;
     }
 
-    public void transact() {
+    public void transact() throws SQLiteException {
         mRequest = createRequest();
         mRequest = onBuildRequest(mRequest);
         mResponse = mTransactor.transact(mRequest);
         interpretResponse();
     }
 
-    private void handleErrorIfApplicable() {
-        // TODO: handle errors...
+    private void handleErrorIfApplicable() throws SQLiteException {
+        if (mResponse.containsKey(KEY_SERVER_EXCEPTION_HELPER)) {
+            // Throws in this method for remote processes...
+            ExceptionTransportHelper exceptionHelper =
+                    mResponse.getParcelable(KEY_SERVER_EXCEPTION_HELPER);
+
+            // And here for local processes...
+            exceptionHelper.propagateLocalException();
+            throw new AssertionError("Must not reach here...");
+        }
     }
 
-    private void interpretResponse() {
+    private void interpretResponse() throws SQLiteException {
         handleErrorIfApplicable();
         try {
             onParseResponse(mResponse);
         } catch (SQLiteServerProtocolException e) {
-            throw new RuntimeException(e);
+            throw new SQLiteException("SQLiteServer error", e);
         }
     }
 

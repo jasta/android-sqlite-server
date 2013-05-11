@@ -1,5 +1,6 @@
 package org.devtcg.sqliteserver.impl.binder;
 
+import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -7,6 +8,7 @@ import android.util.Log;
 import org.devtcg.sqliteserver.impl.ExecutorHelper;
 import org.devtcg.sqliteserver.impl.SQLiteExecutor;
 import org.devtcg.sqliteserver.impl.binder.protocol.AbstractCommandMessage;
+import org.devtcg.sqliteserver.impl.binder.protocol.ExceptionTransportHelper;
 import org.devtcg.sqliteserver.impl.binder.protocol.MethodName;
 
 import java.util.Map;
@@ -143,27 +145,40 @@ public class ServerImpl {
                     AbstractCommandMessage.KEY_METHOD_NAME);
             methodName = MethodName.values()[methodNameOrdinal];
             return runOnTransact(methodName, request);
-        } catch (RuntimeException e) {
-            // TODO: Handle this explicitly; right now we're relying on the fact that we're
-            // being wrapped inside of either a Service or a ContentProvider call which will
-            // transmit some exceptions for us.
-            Log.e(mTag, "Error executing " + methodName, e);
-            throw e;
         } catch (SQLiteServerProtocolException e) {
-            StringBuilder message = new StringBuilder();
-            message.append("Protocol exception: ").append(e);
-            if (methodName != null) {
-                message.append(", dropping method: ").append(methodName);
-            }
-            Log.w(mTag, message.toString());
-
-            // TODO: Send back an error!
-            return null;
+            return replyWithError(e);
+        } catch (SQLiteException e) {
+            return replyWithError(e);
+        } catch (RuntimeException e) {
+            return replyWithError(e);
         }
     }
 
+    // XXX: Not all RuntimeExceptions can be sent through a Parcelable.  If any
+    // such unsupported exception is detected, ExceptionTransportHelper will
+    // throw the exception when delivering the reply to the server.
+    private Bundle replyWithError(Exception e) {
+        Bundle ret = new Bundle();
+        RuntimeException transportException;
+        if (e instanceof SQLiteServerProtocolException) {
+            // We should really handle transporting this exception ourselves...
+            transportException = new SQLiteException(
+                    "SQLiteServerProtocolException: " + e.getMessage(), e);
+        } else if (e instanceof SQLiteException) {
+            transportException = (SQLiteException)e;
+        } else if (e instanceof RuntimeException) {
+            transportException = (RuntimeException)e;
+        } else {
+            throw new IllegalArgumentException("Unsupported exception: " +
+                    e.getClass().getName(), e);
+        }
+        ret.putParcelable(AbstractCommandMessage.KEY_SERVER_EXCEPTION_HELPER,
+                new ExceptionTransportHelper(transportException));
+        return ret;
+    }
+
     private Bundle runOnTransact(MethodName methodName, Bundle request)
-            throws SQLiteServerProtocolException {
+            throws SQLiteException, SQLiteServerProtocolException {
         switch (methodName) {
             // Acquire can run on the Binder thread since it doesn't interact with
             // SQLiteDatabase.  It's used to set up the dedicated thread executor so it's
@@ -178,7 +193,7 @@ public class ServerImpl {
     }
 
     private Bundle runOnDedicatedThread(final MethodName methodName, final Bundle request)
-            throws SQLiteServerProtocolException {
+            throws SQLiteException, SQLiteServerProtocolException {
         BinderHandle clientHandle = BundleUtils.getParcelableOrThrow(
                 request, AbstractCommandMessage.KEY_CLIENT_BINDER);
         ServerState state = getServerState(clientHandle);
@@ -210,7 +225,7 @@ public class ServerImpl {
     }
 
     private Bundle doOnTransact(MethodName methodName, Bundle request)
-            throws SQLiteServerProtocolException {
+            throws SQLiteException, SQLiteServerProtocolException {
         switch (methodName) {
             case ACQUIRE:
                 return new AcquireHandler(this).handle(request);

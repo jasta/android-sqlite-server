@@ -11,6 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ConnectionProviders {
+    public static List<ConnectionProvider> allConnections(Context context) {
+        List<ConnectionProvider> providers = new ArrayList<ConnectionProvider>();
+        providers.addAll(sameProcessConnections(context));
+        providers.addAll(separateProcessConnections(context));
+        return providers;
+    }
+
     public static List<ConnectionProvider> sameProcessConnections(Context context) {
         List<ConnectionProvider> providers = new ArrayList<ConnectionProvider>();
         providers.add(sameProcessContentProvider(context));
