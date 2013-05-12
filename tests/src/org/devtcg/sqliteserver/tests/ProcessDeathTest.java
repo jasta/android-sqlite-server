@@ -71,6 +71,8 @@ public class ProcessDeathTest extends AndroidTestCase {
 
             // Make sure the transaction was therefore rolled back.
             assertEmpty(localConn.rawQuery("SELECT * FROM test", new String[] {}));
+
+            localConn.close();
         }
     }
 }

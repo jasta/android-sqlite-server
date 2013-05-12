@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExecutorHelper {
     private static final AtomicInteger mCount = new AtomicInteger(1);
 
+    private ExecutorHelper() {}
+
     public static <T> ThreadAffinityExecutor<T> createThreadAffinityExecutor() {
         String threadName = "ThreadAffinityExec-" + mCount.getAndIncrement();
         return createThreadAffinityExecutor(threadName);

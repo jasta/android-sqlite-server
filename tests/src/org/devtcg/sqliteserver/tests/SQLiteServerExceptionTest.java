@@ -16,6 +16,8 @@ public class SQLiteServerExceptionTest extends AndroidTestCase {
                 fail("Expected IllegalStateException when communicating with provider " + provider);
             } catch (IllegalStateException e) {
                 // Test pass.
+            } finally {
+                conn.close();
             }
         }
     }
@@ -28,6 +30,8 @@ public class SQLiteServerExceptionTest extends AndroidTestCase {
                 fail("Expected SQLiteException when communicating with provider " + provider);
             } catch (SQLiteException e) {
                 // Test pass.
+            } finally {
+                conn.close();
             }
         }
     }

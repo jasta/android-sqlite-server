@@ -29,7 +29,23 @@ public class ThreadAffinityExecutor<V> {
      * @return Callable result.
      * @throws ExecutionException Wrapped exception rethrown from the {@code callable}.
      */
-    public V runSynchronously(final Callable<V> callable) throws ExecutionException {
+    public V runSynchronously(Callable<V> callable) throws ExecutionException {
+        if (Looper.myLooper() == mLooper) {
+            return runOnCurrentThread(callable);
+        } else {
+            return runOnHandlerThread(callable);
+        }
+    }
+
+    private V runOnCurrentThread(Callable<V> callable) throws ExecutionException {
+        try {
+            return callable.call();
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
+    }
+
+    private V runOnHandlerThread(final Callable<V> callable) throws ExecutionException {
         // TODO: optimize this garbage (specifically: remove allocations).
         final ResultHolder<V> resultHolder = new ResultHolder<V>();
         final CountDownLatch resultLatch = new CountDownLatch(1);
@@ -40,8 +56,9 @@ public class ThreadAffinityExecutor<V> {
                     resultHolder.result = callable.call();
                 } catch (Exception e) {
                     resultHolder.exception = e;
+                } finally {
+                    resultLatch.countDown();
                 }
-                resultLatch.countDown();
             }
         });
         awaitUninterruptibly(resultLatch);

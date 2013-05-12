@@ -74,7 +74,9 @@ public class ThreadedTest extends AndroidTestCase {
             } finally {
                 /* This is only needed by the master to inform the slave that the last
                  * handoff has completed... */
-                mThreadState.currentLatch.countDown();
+                synchronized (mThreadState) {
+                    mThreadState.currentLatch.countDown();
+                }
             }
         }
 
@@ -83,8 +85,10 @@ public class ThreadedTest extends AndroidTestCase {
         public void handoff() {
             CountDownLatch nextLatch = new CountDownLatch(1);
 
-            mThreadState.currentLatch.countDown();
-            mThreadState.currentLatch = nextLatch;
+            synchronized (mThreadState) {
+                mThreadState.currentLatch.countDown();
+                mThreadState.currentLatch = nextLatch;
+            }
 
             waitForPeer(nextLatch);
         }
@@ -108,25 +112,29 @@ public class ThreadedTest extends AndroidTestCase {
         public void doRun() throws SQLiteException {
             SQLiteServerConnection conn = openConnection();
 
-            conn.beginTransaction();
             try {
-                ContentValues values = new ContentValues();
-                values.put("test1", "foo");
-                values.put("test2", "bar");
-                conn.insert("test", values);
+                conn.beginTransaction();
+                try {
+                    ContentValues values = new ContentValues();
+                    values.put("test1", "foo");
+                    values.put("test2", "bar");
+                    conn.insert("test", values);
 
-                values.put("test2", "baz");
-                conn.insert("test", values);
+                    values.put("test2", "baz");
+                    conn.insert("test", values);
 
-                conn.setTransactionSuccessful();
+                    conn.setTransactionSuccessful();
+                } finally {
+                    conn.endTransaction();
+                }
+
+                handoff();
+
+                if (!DbHelper.isEmpty(conn.rawQuery("SELECT * FROM test", new String[] {}))) {
+                    recordFailure("Slave did not delete rows as expected");
+                }
             } finally {
-                conn.endTransaction();
-            }
-
-            handoff();
-
-            if (!DbHelper.isEmpty(conn.rawQuery("SELECT * FROM test", new String[] {}))) {
-                recordFailure("Slave did not delete rows as expected");
+                conn.close();
             }
         }
     }
@@ -141,13 +149,17 @@ public class ThreadedTest extends AndroidTestCase {
 
             SQLiteServerConnection conn = openConnection();
 
-            if (DbHelper.isEmpty(conn.rawQuery("SELECT * FROM test", new String[]{}))) {
-                recordFailure("Master did not insert records as expected");
+            try {
+                if (DbHelper.isEmpty(conn.rawQuery("SELECT * FROM test", new String[]{}))) {
+                    recordFailure("Master did not insert records as expected");
+                }
+
+                conn.delete("test", null, null);
+
+                handoff();
+            } finally {
+                conn.close();
             }
-
-            conn.delete("test", null, null);
-
-            handoff();
         }
     }
 
