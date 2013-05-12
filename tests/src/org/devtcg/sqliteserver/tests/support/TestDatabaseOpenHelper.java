@@ -6,10 +6,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class TestDatabaseOpenHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
-    public static final String DB_NAME_IN_MEMORY = null;
 
-    public TestDatabaseOpenHelper(Context context, String name) {
-        super(context, name, null, DB_VERSION);
+    public TestDatabaseOpenHelper(Context context, String serverName) {
+        /* Use in-memory databases for tests. */
+        this(context, null, DB_VERSION);
+    }
+
+    private TestDatabaseOpenHelper(Context context, String name, int version) {
+        super(context, name, null, version);
     }
 
     @Override

@@ -57,6 +57,8 @@ requests!
   SQLiteExecutor (so, functionally equivalent to how SQLiteDatabase works now).
 * [important] Detect same process cases for ContentProvider and Service and
   just invoke methods directly.
+* [medium] Explicitly support and test single connection, multiple threads
+  usage.
 * [wishlist] Refactor the very generic AbstractBinderClient such that each
   transport (ContentProvider or Service) can implement its own, more efficient,
   dispatching logic.  For example, Service can define an aidl that parcels the

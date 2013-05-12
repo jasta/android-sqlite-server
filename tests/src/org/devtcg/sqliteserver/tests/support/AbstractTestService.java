@@ -14,7 +14,7 @@ abstract class AbstractTestService extends SQLiteServiceServer
         // fall down and report a crash rather than a test failure.  Not awesome, but at
         // least it's not silently ignored :)
         assertEquals(isExpectedInMainProcess(), ProcessHelper.inMainProcess(this));
-        return new TestDatabaseOpenHelper(this, TestDatabaseOpenHelper.DB_NAME_IN_MEMORY)
+        return new TestDatabaseOpenHelper(this, getClass().getSimpleName())
                 .getWritableDatabase();
     }
 

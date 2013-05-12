@@ -11,7 +11,7 @@ abstract class AbstractTestContentProvider extends SQLiteContentProviderServer
     @Override
     public SQLiteDatabase getWritableDatabase() {
         assertEquals(isExpectedInMainProcess(), ProcessHelper.inMainProcess(getContext()));
-        return new TestDatabaseOpenHelper(getContext(), TestDatabaseOpenHelper.DB_NAME_IN_MEMORY)
+        return new TestDatabaseOpenHelper(getContext(), getClass().getSimpleName())
                 .getWritableDatabase();
     }
 

@@ -1,7 +1,6 @@
 package org.devtcg.sqliteserver.tests;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.test.AndroidTestCase;
 import org.devtcg.sqliteserver.SQLiteServerConnection;
 import org.devtcg.sqliteserver.exception.SQLiteServerException;
@@ -15,6 +14,8 @@ import org.devtcg.sqliteserver.tests.util.*;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
+
+import static org.devtcg.sqliteserver.tests.util.DbHelper.assertEmpty;
 
 public class ProcessDeathTest extends AndroidTestCase {
     public void testServerDeath() {
@@ -70,14 +71,6 @@ public class ProcessDeathTest extends AndroidTestCase {
 
             // Make sure the transaction was therefore rolled back.
             assertEmpty(localConn.rawQuery("SELECT * FROM test", new String[] {}));
-        }
-    }
-
-    private static void assertEmpty(Cursor cursor) {
-        try {
-            assertEquals(0, cursor.getCount());
-        } finally {
-            cursor.close();
         }
     }
 }
