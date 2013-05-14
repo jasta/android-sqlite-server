@@ -85,6 +85,7 @@ public class ThreadedTest extends AndroidTestCase {
         public void handoff() {
             CountDownLatch nextLatch = new CountDownLatch(1);
 
+            // Err, this is not correct.  Fix later.
             synchronized (mThreadState) {
                 mThreadState.currentLatch.countDown();
                 mThreadState.currentLatch = nextLatch;
