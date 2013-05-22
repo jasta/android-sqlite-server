@@ -4,3 +4,5 @@ gen
 bin
 out
 local.properties
+build
+.gradle
